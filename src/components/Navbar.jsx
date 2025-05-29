@@ -38,9 +38,12 @@ function Navbar() {
   }, [isAuthenticated])
 
   const handleLogout = () => {
+    // Clear all authentication-related data
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
     setUser(null)
-    navigate('/login')
+    // Force a full page reload to reset the app state
+    window.location.href = '/login'
   }
 
   return (
