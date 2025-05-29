@@ -8,6 +8,7 @@ import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import Profile from './pages/Profile'
 import QuizPage from './pages/QuizPage'
+import QuizResults from './pages/QuizResults'
 import CreateQuiz from './pages/CreateQuiz'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/quiz/:id" element={<QuizPage />} />
+          <Route path="/quiz/attempt/:attemptId/results" element={<QuizResults />} />
           <Route path="/create-quiz" element={<CreateQuiz />} />
         </Route>
         

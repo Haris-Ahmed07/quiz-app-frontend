@@ -170,6 +170,42 @@ export const submitQuiz = async (quizId, answers, timeTaken) => {
   }
 }
 
+export const getQuizResults = async (attemptId) => {
+  try {
+    console.log(`Fetching results for attempt: ${attemptId}`);
+    const response = await api.get(`/quizzes/attempt/${attemptId}/results`);
+    
+    console.log('Results API Response:', response);
+    
+    if (!response.data) {
+      throw new Error('No data received from server');
+    }
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to fetch results');
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error in getQuizResults:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
+    // Provide more specific error messages based on status code
+    if (error.response?.status === 404) {
+      throw new Error('Quiz results not found. The attempt may have expired or been deleted.');
+    } else if (error.response?.status === 403) {
+      throw new Error('You do not have permission to view these results.');
+    } else if (error.response?.status >= 500) {
+      throw new Error('Server error. Please try again later.');
+    }
+    
+    throw new Error(error.response?.data?.message || 'Failed to load quiz results. Please try again.');
+  }
+};
+
 export const getUserHistory = async () => {
   try {
     const response = await api.get('/users/history')

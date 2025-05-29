@@ -10,7 +10,8 @@ function QuizAttempt({ quiz }) {
   const [answers, setAnswers] = useState({})
   // Convert minutes to seconds for the timer
   const [timeLeft, setTimeLeft] = useState(0)
-  const [score, setScore] = useState(null)
+  const [attemptId, setAttemptId] = useState(null)
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -116,8 +117,21 @@ function QuizAttempt({ quiz }) {
         throw new Error(errorMsg);
       }
 
-      setScore(response.data.score)
-      setLoading(false)
+      // Check if we have the attempt ID in the response
+      if (response.data?.attemptId) {
+        // Navigate to the results page with the attempt ID in the URL
+        navigate(`/quiz/attempt/${response.data.attemptId}/results`, {
+          state: { results: response.data }
+        });
+      } else if (response.data?._id) {
+        // Fallback: If the ID is in _id field
+        navigate(`/quiz/attempt/${response.data._id}/results`, {
+          state: { results: response.data }
+        });
+      } else {
+        // If no ID is found, show an error
+        throw new Error('No attempt ID received from server');
+      }
     } catch (error) {
       console.error('Error submitting quiz:', error)
       setError(error.message)
@@ -141,13 +155,16 @@ function QuizAttempt({ quiz }) {
     )
   }
 
-  if (score !== null) {
+  // Show loading state during submission
+  if (loading) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold mb-4">Quiz Results</h2>
-        <p>Your Score: {score} / {quiz?.questions?.reduce((sum, q) => sum + q.marks, 0) || 0}</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p>Submitting your quiz...</p>
+        </div>
       </div>
-    )
+    );
   }
 
   // Format time as minutes.seconds (e.g., 25.30 for 25 minutes and 30 seconds)

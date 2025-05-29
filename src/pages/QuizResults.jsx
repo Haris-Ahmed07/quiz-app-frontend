@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getQuizResults } from '../utils/api';
 
 function QuizResults() {
-  const { id } = useParams();
+  const { attemptId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [results, setResults] = useState(location.state?.results || null);
@@ -12,18 +12,29 @@ function QuizResults() {
 
   useEffect(() => {
     const fetchResults = async () => {
-      if (!results && id) {
+      if (!results && attemptId) {
         try {
+          console.log('Fetching results for attempt ID:', attemptId);
           setLoading(true);
-          const response = await getQuizResults(id);
-          if (response.success) {
+          setError(null);
+          const response = await getQuizResults(attemptId);
+          console.log('API Response:', response);
+          
+          if (response && response.success) {
             setResults(response.data);
           } else {
-            setError(response.message || 'Failed to load results');
+            const errorMsg = response?.message || 'Failed to load results';
+            console.error('API Error:', errorMsg);
+            setError(errorMsg);
           }
         } catch (err) {
-          console.error('Error fetching quiz results:', err);
-          setError('Failed to load quiz results. Please try again.');
+          console.error('Error in fetchResults:', {
+            message: err.message,
+            response: err.response?.data,
+            status: err.response?.status,
+            stack: err.stack
+          });
+          setError(err.response?.data?.message || 'Failed to load quiz results. Please try again.');
         } finally {
           setLoading(false);
         }
@@ -31,7 +42,7 @@ function QuizResults() {
     };
 
     fetchResults();
-  }, [id, results]);
+  }, [attemptId, results]);
 
   if (loading) {
     return (
@@ -46,18 +57,45 @@ function QuizResults() {
     );
   }
 
-  if (error || !results) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="mb-6">{error || 'No results found'}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Back to Dashboard
-          </button>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+              <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Results</h2>
+            <p className="mb-4 text-gray-700">
+              {error.message || error || 'We couldn\'t load your quiz results.'}
+            </p>
+            
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-4 p-4 bg-gray-100 rounded text-left text-sm">
+                <p className="font-medium">Debug Information:</p>
+                <p>Attempt ID: {attemptId}</p>
+                <p>Error: {error.message || JSON.stringify(error)}</p>
+                <p>API Endpoint: /quizzes/attempt/{attemptId}/results</p>
+              </div>
+            )}
+            
+            <div className="mt-6 space-x-4">
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

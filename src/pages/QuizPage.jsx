@@ -125,7 +125,8 @@ function QuizPage() {
     const [currentQuestion, setCurrentQuestion] = useState(0)
     const [answers, setAnswers] = useState({})
     const [timeLeft, setTimeLeft] = useState(quiz.duration * 60) // Convert to seconds
-    const [isSubmitted, setIsSubmitted] = useState(false)
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [attemptId, setAttemptId] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitError, setSubmitError] = useState(null)
 
@@ -225,6 +226,12 @@ function QuizPage() {
         const result = await response.json();
         console.log('Quiz submission successful:', result);
         
+        if (result.data?.attemptId) {
+          setAttemptId(result.data.attemptId);
+        } else if (result.data?._id) {
+          setAttemptId(result.data._id);
+        }
+        
         setIsSubmitted(true);
         toast.success('Quiz submitted successfully!');
         
@@ -291,7 +298,13 @@ function QuizPage() {
               Back to Dashboard
             </button>
             <button
-              onClick={() => navigate(`/quiz/${quiz._id}/results`)}
+              onClick={() => {
+                if (attemptId) {
+                  navigate(`/quiz/attempt/${attemptId}/results`);
+                } else {
+                  toast.error('Unable to view results. Please try again.');
+                }
+              }}
               className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
             >
               View Results
