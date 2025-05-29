@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Navbar from './components/Navbar'
@@ -9,19 +9,32 @@ import ForgotPassword from './pages/ForgotPassword'
 import Profile from './pages/Profile'
 import QuizPage from './pages/QuizPage'
 import CreateQuiz from './pages/CreateQuiz'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* Public routes */}
+        <Route path="/login" element={localStorage.getItem('token') ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/signup" element={localStorage.getItem('token') ? <Navigate to="/" replace /> : <Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/quiz/:id" element={<QuizPage />} />
-        <Route path="/create-quiz" element={<CreateQuiz />} />
+        
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/quiz/:id" element={<QuizPage />} />
+          <Route path="/create-quiz" element={<CreateQuiz />} />
+        </Route>
+        
+        {/* Redirect any unknown routes to home or login */}
+        <Route path="*" element={
+          localStorage.getItem('token') 
+            ? <Navigate to="/" replace /> 
+            : <Navigate to="/login" replace />
+        } />
       </Routes>
       <ToastContainer
         position="top-right"

@@ -5,11 +5,37 @@ import axios from 'axios'
 function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [emailError, setEmailError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
+  
+  const handleEmailChange = (e) => {
+    const { value } = e.target
+    setForm({ ...form, email: value })
+    
+    if (value === '') {
+      setEmailError('')
+    } else if (!validateEmail(value)) {
+      setEmailError('Please enter a valid email address')
+    } else {
+      setEmailError('')
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Validate email format before submission
+    if (!validateEmail(form.email)) {
+      setEmailError('Please enter a valid email address')
+      return
+    }
+    
     setLoading(true)
     setError('')
     
@@ -40,11 +66,17 @@ function Login() {
           <input
             type="email"
             value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={handleEmailChange}
+            onBlur={(e) => e.target.value && !validateEmail(e.target.value) && setEmailError('Please enter a valid email address')}
+            className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              emailError ? 'border-red-500' : ''
+            }`}
             placeholder="Enter your email"
             required
           />
+          {emailError && (
+            <p className="mt-1 text-sm text-red-600">{emailError}</p>
+          )}
         </div>
         
         <div>
