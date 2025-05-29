@@ -81,16 +81,16 @@ function QuizResults() {
               </div>
             )}
             
-            <div className="mt-6 space-x-4">
+            <div className="mt-6 flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
               <button
                 onClick={() => window.location.reload()}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto text-center"
               >
                 Try Again
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors w-full sm:w-auto text-center"
               >
                 Back to Dashboard
               </button>

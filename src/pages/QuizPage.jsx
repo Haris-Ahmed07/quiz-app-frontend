@@ -290,25 +290,29 @@ function QuizPage() {
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Quiz Submitted!</h3>
           <p className="text-gray-600 mb-6">Your answers have been recorded successfully.</p>
-          <div className="space-x-4">
-            <button
-              onClick={() => navigate('/')}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-            >
-              Back to Dashboard
-            </button>
-            <button
-              onClick={() => {
-                if (attemptId) {
-                  navigate(`/quiz/attempt/${attemptId}/results`);
-                } else {
-                  toast.error('Unable to view results. Please try again.');
-                }
-              }}
-              className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
-            >
-              View Results
-            </button>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 w-full">
+            <div className="w-full sm:w-auto">
+              <button
+                onClick={() => navigate('/')}
+                className="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 w-full"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+            <div className="w-full sm:w-auto">
+              <button
+                onClick={() => {
+                  if (attemptId) {
+                    navigate(`/quiz/attempt/${attemptId}/results`);
+                  } else {
+                    toast.error('Unable to view results. Please try again.');
+                  }
+                }}
+                className="inline-flex justify-center items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 w-full"
+              >
+                View Results
+              </button>
+            </div>
           </div>
           {submitError && (
             <div className="mt-4 p-4 bg-red-50 rounded-lg">
