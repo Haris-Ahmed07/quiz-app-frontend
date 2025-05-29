@@ -42,9 +42,10 @@ function Navbar() {
     // Clear all authentication-related data
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    localStorage.removeItem('isAdmin')
     setUser(null)
-    // Force a full page reload to reset the app state
-    window.location.href = '/login'
+    // Redirect to login page and force a full page reload
+    window.location.href = 'http://localhost:3000/login'
   }
 
   return (

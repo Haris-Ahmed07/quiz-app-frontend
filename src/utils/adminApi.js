@@ -1,15 +1,15 @@
 import axios from 'axios';
 
-// Create a separate axios instance for admin API calls
-const adminApi = axios.create({
-  baseURL: 'http://localhost:5000/api/admin',
+// Create a separate axios instance for API calls
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // Add request interceptor to include auth token
-adminApi.interceptors.request.use((config) => {
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -19,32 +19,21 @@ adminApi.interceptors.request.use((config) => {
 
 export const adminLogin = async (email, password) => {
   try {
-    // Check if it's the admin user
-    if (email === 'unsa@gmail.com' && password === 'unsaunsa') {
-      // Store the admin token in localStorage
-      localStorage.setItem('token', 'admin-token');
+    const response = await api.post('/auth/login', { email, password });
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
       localStorage.setItem('isAdmin', 'true');
-      
-      return {
-        success: true,
-        user: {
-          _id: 'admin',
-          name: 'Admin',
-          email: 'unsa@gmail.com',
-          isAdmin: true
-        },
-        token: 'admin-token'
-      };
+      return response.data;
     }
-    throw new Error('Invalid admin credentials');
+    throw new Error('Login failed');
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(error.response?.data?.message || 'Login failed');
   }
 };
 
 export const getAllUsers = async () => {
   try {
-    const response = await adminApi.get('/users');
+    const response = await api.get('/admin/users');
     return response.data;
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -54,7 +43,7 @@ export const getAllUsers = async () => {
 
 export const deleteUser = async (userId) => {
   try {
-    const response = await adminApi.delete(`/users/${userId}`);
+    const response = await api.delete(`/admin/users/${userId}`);
     return response.data;
   } catch (error) {
     console.error('Error deleting user:', error);
@@ -64,7 +53,7 @@ export const deleteUser = async (userId) => {
 
 export const deleteQuiz = async (quizId) => {
   try {
-    const response = await adminApi.delete(`/quizzes/${quizId}`);
+    const response = await api.delete(`/admin/quizzes/${quizId}`);
     return response.data;
   } catch (error) {
     console.error('Error deleting quiz:', error);

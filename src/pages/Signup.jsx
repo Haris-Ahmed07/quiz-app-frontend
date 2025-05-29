@@ -56,9 +56,17 @@ function Signup() {
           password: form.password
         })
 
-        // 3. Store the token and redirect to dashboard
-        if (loginResponse.data?.token) {
+        // 3. Store the token, user data and redirect to dashboard
+        if (loginResponse.data?.token && loginResponse.data?.user) {
           localStorage.setItem('token', loginResponse.data.token)
+          // Store user data in localStorage including name, email, and creation date
+          const userData = {
+            name: loginResponse.data.user.name,
+            email: loginResponse.data.user.email,
+            createdAt: loginResponse.data.user.createdAt || new Date().toISOString(),
+            _id: loginResponse.data.user._id
+          }
+          localStorage.setItem('user', JSON.stringify(userData))
           navigate('/')
         } else {
           // If login after signup fails, redirect to login page

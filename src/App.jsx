@@ -21,9 +21,11 @@ const ProtectedAdminRoute = () => {
 };
 
 function App() {
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      {!isAdmin && <Navbar />}
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={localStorage.getItem('token') ? <Navigate to="/" replace /> : <Login />} />

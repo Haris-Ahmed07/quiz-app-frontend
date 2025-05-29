@@ -23,11 +23,67 @@ function AdminDashboard() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      setError('');
+      
+      console.log('Fetching users...');
       const response = await getAllUsers();
-      setUsers(response.users || []);
+      
+      // Debug the entire response
+      console.log('Full API Response:', JSON.stringify(response, null, 2));
+      
+      if (!response) {
+        console.error('No response received from API');
+        setError('Failed to fetch users: No response from server');
+        setUsers([]);
+        return;
+      }
+      
+      // Check if response has users array
+      if (!response.users || !Array.isArray(response.users)) {
+        console.error('Invalid response format - users array not found:', response);
+        setError('Invalid data format received from server');
+        setUsers([]);
+        return;
+      }
+      
+      console.log(`Found ${response.users.length} users in response`);
+      
+      // Filter out admin users
+      const regularUsers = response.users.filter(user => {
+        const isRegularUser = user.role !== 'admin';
+        console.log(`User ${user.email} (${user.role}): ${isRegularUser ? 'Regular' : 'Admin'}`);
+        return isRegularUser;
+      });
+      
+      console.log(`Found ${regularUsers.length} regular users after filtering`);
+      
+      // Log details of each user
+      regularUsers.forEach((user, index) => {
+        console.log(`User ${index + 1}:`, {
+          name: user.name,
+          email: user.email,
+          quizCount: user.quizCount,
+          totalAttempts: user.totalAttempts,
+          averageScore: user.averageScore,
+          quizzes: user.quizzes?.length || 0,
+          quizAttempts: user.quizAttempts?.length || 0
+        });
+      });
+      
+      // Update state with the filtered users
+      setUsers(regularUsers);
+      
+      if (regularUsers.length === 0) {
+        console.log('No regular users found after filtering');
+        setError('No regular users found in the database');
+      } else {
+        console.log(`Successfully loaded ${regularUsers.length} regular users`);
+      }
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Failed to load users');
+      setError('Failed to load users. Please make sure the backend server is running and accessible.');
+      // Set empty users to clear any previous data
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -73,7 +129,8 @@ function AdminDashboard() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('isAdmin');
-    navigate('/admin/login');
+    // Navigate to admin login and force a full page reload
+    window.location.href = 'http://localhost:3000/admin/login';
   };
 
   if (loading) {
@@ -121,12 +178,12 @@ function AdminDashboard() {
               ) : (
                 users.map((user) => (
                   <li key={user._id} className="px-6 py-4">
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center w-full">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900">{user.name}</h3>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                        <p className="text-sm text-gray-500">
-                          Quizzes: {user.quizzes?.length || 0}
+                        <p className="text-sm text-gray-600">{user.email}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Member since: {new Date(user.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="flex space-x-2">

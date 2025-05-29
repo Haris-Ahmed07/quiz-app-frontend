@@ -46,9 +46,15 @@ function Login() {
       })
       
       localStorage.setItem('token', response.data.token)
-      // Store user data in localStorage
+      // Store user data in localStorage including name, email, and creation date
       if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user))
+        const userData = {
+          name: response.data.user.name,
+          email: response.data.user.email,
+          createdAt: response.data.user.createdAt || new Date().toISOString(),
+          _id: response.data.user._id
+        }
+        localStorage.setItem('user', JSON.stringify(userData))
       }
       navigate('/')
     } catch (err) {
